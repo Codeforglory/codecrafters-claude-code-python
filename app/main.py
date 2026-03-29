@@ -65,6 +65,7 @@ def main():
                 
                 for tool_call in chat.choices[0].message.tool_calls:
                     
+                    tool_call = tool_call.model_dump()
                     response_tool = tool_call.function.name
                     response_tool_id = tool_call.id
                     response_args = json.loads(tool_call.function.arguments)["file_path"]
