@@ -85,7 +85,7 @@ def main():
             )
             response = chat.choices[0].message.content
             finish_reason = chat.choices[0].finish_reason
-            messages.append({"role": "assistant", "content": response,,"tool_calls": chat.choices[0].message.tool_calls})
+            messages.append({"role": "assistant", "content": response,"tool_calls": chat.choices[0].message.tool_calls})
 
     
     print(chat.choices[0].message.content)
