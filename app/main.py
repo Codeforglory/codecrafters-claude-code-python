@@ -51,12 +51,15 @@ def main():
     #print(chat.choices[0].message.content)
     response = chat.choices[0].message.content
 
-    response_tool = chat.choices[0].message.tool_calls[0].function.name
-    response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
+    if len(chat.choices[0].message.tool_calls) == 0:
+        print(chat.choices[0].message.content)
+    else:
+        response_tool = chat.choices[0].message.tool_calls[0].function.name
+        response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
 
-    with open(response_args, "r") as f:
-        file_contents = f.read()
-        print(file_contents)
+        with open(response_args, "r") as f:
+            file_contents = f.read()
+            print(file_contents)
 
     
 
