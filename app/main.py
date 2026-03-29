@@ -61,7 +61,7 @@ def main():
 
             
             
-            if ("tool_calls" in chat.choices[0].message) or chat.choices[0].message.tool_calls != None:
+            if chat.choices[0].message.tool_calls != None:
                 
                 for tool_call in chat.choices[0].message.tool_calls:
                     
@@ -71,8 +71,7 @@ def main():
                     with open(response_args, "r") as f:
                         file_contents = f.read()
                     #print(file_contents)
-                
-                    messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
+                        messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
             else:
                  messages.append({"role": "assistant", "content": response})
 
