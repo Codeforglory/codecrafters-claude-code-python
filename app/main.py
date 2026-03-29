@@ -35,9 +35,12 @@ def main():
 
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
+    messages = [
+    { "role": "user", "content": args.p }
+    ]
     chat = client.chat.completions.create(
         model="anthropic/claude-haiku-4.5",
-        messages=[{"role": "user", "content": args.p}],
+        messages=messages,
         tools = [read_tool]
     )
 
@@ -50,16 +53,42 @@ def main():
     # TODO: Uncomment the following line to pass the first stage
     #print(chat.choices[0].message.content)
     response = chat.choices[0].message.content
+    finish_reason = chat.choices[0].finish_reason
+    while finish_reason != "stop":
+        
+            
+            #messages.append({"role": "assistant", "content": response, "tool_calls": chat.choices[0].message.tool_calls})
 
-    if chat.choices[0].message.tool_calls == None:
-        print(chat.choices[0].message.content)
-    else:
-        response_tool = chat.choices[0].message.tool_calls[0].function.name
-        response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
+            response_tool = chat.choices[0].message.tool_calls[0].function.name
+            response_tool_id = chat.choices[0].message.tool_calls[0].id
+            response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
+            
+            if ("tool_calls" in chat.choices[0].message) or chat.choices[0].message.tool_calls != None:
+            
+                with open(response_args, "r") as f:
+                    file_contents = f.read()
+                    print(file_contents)
+                
+                messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
+            else:
+                messages.append({"role": "assistant", "content": response})
+            chat = client.chat.completions.create(
+                model="anthropic/claude-haiku-4.5",
+                messages=[{"role": "user", "content": response}],
+                tools = [read_tool]
+            )
+            response = chat.choices[0].message.content
+            finish_reason = chat.choices[0].finish_reason
 
-        with open(response_args, "r") as f:
-            file_contents = f.read()
-            print(file_contents)
+    
+    print(chat.choices[0].message.content)
+    # else:
+    #     response_tool = chat.choices[0].message.tool_calls[0].function.name
+    #     response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
+
+    #     with open(response_args, "r") as f:
+    #         file_contents = f.read()
+    #         print(file_contents)
 
     
 
