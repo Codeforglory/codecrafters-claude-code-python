@@ -64,7 +64,7 @@ def main():
     chat = client.chat.completions.create(
         model="anthropic/claude-haiku-4.5",
         messages=messages,
-        tools = [read_tool]
+        tools = [write_tool]
     )
 
     if not chat.choices or len(chat.choices) == 0:
@@ -76,54 +76,52 @@ def main():
     # TODO: Uncomment the following line to pass the first stage
     #print(chat.choices[0].message.content)
     response = chat.choices[0].message.content
-    #finish_reason = chat.choices[0].finish_reason
-    #messages.append({"role": "assistant", "content": response,"tool_calls": chat.choices[0].message.tool_calls  })
-    # while True:
-    #         if finish_reason == "stop":
-    #             break
+    finish_reason = chat.choices[0].finish_reason
+    messages.append({"role": "assistant", "content": response,"tool_calls": chat.choices[0].message.tool_calls  })
+    while True:
+            if finish_reason == "stop":
+                break
             
-    #         #messages.append({"role": "assistant", "content": response, "tool_calls": chat.choices[0].message.tool_calls})
+            #messages.append({"role": "assistant", "content": response, "tool_calls": chat.choices[0].message.tool_calls})
 
             
             
-    #         if chat.choices[0].message.tool_calls != None:
+            if chat.choices[0].message.tool_calls != None:
                 
-    #             for tool_call in chat.choices[0].message.tool_calls:
+                for tool_call in chat.choices[0].message.tool_calls:
                     
-    #                 tool_call = tool_call.model_dump()
-    #                 response_tool = tool_call["function"]["name"]
+                    tool_call = tool_call.model_dump()
+                    response_tool = tool_call["function"]["name"]
 
-    #                 response_tool_id = tool_call["id"]
-    #                 response_args = json.loads(tool_call["function"]["arguments"])["file_path"]
-    #                 with open(response_args, "r") as f:
-    #                     file_contents = f.read()
-    #                 #print(file_contents)
-    #                     messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
-
-
-    #         chat = client.chat.completions.create(
-    #             model="anthropic/claude-haiku-4.5",
-    #             messages= messages,
-    #             tools = [read_tool]
-    #         )
-    #         response = chat.choices[0].message.content
-    #         finish_reason = chat.choices[0].finish_reason
-    #         messages.append({"role": "assistant", "content": response,"tool_calls": chat.choices[0].message.tool_calls})
+                    response_tool_id = tool_call["id"]
+                    
+                    response_args = json.loads(tool_call["function"]["arguments"])["file_path"]
+                    response_file_content = json.loads(tool_call["function"]["arguments"])["content"] if "content" in json.loads(tool_call["function"]["arguments"]) else None
+                    with open(response_args, "r") as f:
+                        file_contents = f.write(response_file_content)
+                    #print(file_contents)
+                        messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
 
 
+            chat = client.chat.completions.create(
+                model="anthropic/claude-haiku-4.5",
+                messages= messages,
+                tools = [write_tool]
+            )
+            response = chat.choices[0].message.content
+            finish_reason = chat.choices[0].finish_reason
+            messages.append({"role": "assistant", "content": response,"tool_calls": chat.choices[0].message.tool_calls})
 
-    #print(chat.choices[0].message.content)
-    if chat.choices[0].message.tool_calls == None:
-        print(response)
-    else:
-        response_tool = chat.choices[0].message.tool_calls[0].function.name
-        response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
-        response_file_content = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["content"]
-        
-        with open(response_args, "w") as f:
-            f.write(response_file_content)
-            #print(file_contents)
-            messages.append({"role" : "assistant", "content": response_file_content})
+    
+    print(chat.choices[0].message.content)
+    # else:
+    #     response_tool = chat.choices[0].message.tool_calls[0].function.name
+    #     response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
+
+    #     with open(response_args, "r") as f:
+    #         file_contents = f.read()
+    #         print(file_contents)
+
     
 
 if __name__ == "__main__":
