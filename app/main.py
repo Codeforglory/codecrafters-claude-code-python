@@ -52,7 +52,7 @@ def main():
     response = chat.choices[0].message.content
 
     response_tool = chat.choices[0].message.tool_calls[0].function.name
-    response_args = chat.choices[0].message.tool_calls[0]["file_path"]
+    response_args = chat.choices[0].message.tool_calls[0].file_path
 
     with open(response_args, "r") as f:
         file_contents = f.read()
