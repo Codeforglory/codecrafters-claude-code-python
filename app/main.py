@@ -60,7 +60,7 @@ def main():
             #messages.append({"role": "assistant", "content": response, "tool_calls": chat.choices[0].message.tool_calls})
 
             
-            
+            messages.append({"role": "assistant", "content": response})
             if chat.choices[0].message.tool_calls != None:
                 
                 for tool_call in chat.choices[0].message.tool_calls:
@@ -72,8 +72,7 @@ def main():
                         file_contents = f.read()
                     #print(file_contents)
                         messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
-            else:
-                 messages.append({"role": "assistant", "content": response})
+            
 
             chat = client.chat.completions.create(
                 model="anthropic/claude-haiku-4.5",
