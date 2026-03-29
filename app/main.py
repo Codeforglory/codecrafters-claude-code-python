@@ -67,11 +67,12 @@ def main():
             
                 with open(response_args, "r") as f:
                     file_contents = f.read()
-                    print(file_contents)
+                    #print(file_contents)
                 
                 messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
             else:
-                messages.append({"role": "assistant", "content": response})
+                 messages.append({"role": "assistant", "content": response})
+                 break
             chat = client.chat.completions.create(
                 model="anthropic/claude-haiku-4.5",
                 messages=[{"role": "user", "content": args.p}] + messages,
