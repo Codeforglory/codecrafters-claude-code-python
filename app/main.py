@@ -59,20 +59,23 @@ def main():
             
             #messages.append({"role": "assistant", "content": response, "tool_calls": chat.choices[0].message.tool_calls})
 
-            response_tool = chat.choices[0].message.tool_calls[0].function.name
-            response_tool_id = chat.choices[0].message.tool_calls[0].id
-            response_args = json.loads(chat.choices[0].message.tool_calls[0].function.arguments)["file_path"]
+            
             
             if ("tool_calls" in chat.choices[0].message) or chat.choices[0].message.tool_calls != None:
-            
-                with open(response_args, "r") as f:
-                    file_contents = f.read()
+                
+                for tool_call in chat.choices[0].message.tool_calls:
+                    
+                    response_tool = tool_call.function.name
+                    response_tool_id = tool_call.id
+                    response_args = json.loads(tool_call.function.arguments)["file_path"]
+                    with open(response_args, "r") as f:
+                        file_contents = f.read()
                     #print(file_contents)
                 
-                messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
+                    messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
             else:
                  messages.append({"role": "assistant", "content": response})
-                 break
+                 
             chat = client.chat.completions.create(
                 model="anthropic/claude-haiku-4.5",
                 messages=[{"role": "user", "content": args.p}] + messages,
