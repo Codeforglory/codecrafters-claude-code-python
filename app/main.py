@@ -51,7 +51,7 @@ def main():
     #print(chat.choices[0].message.content)
     response = chat.choices[0].message.content
 
-    if len(chat.choices[0].message.tool_calls) == 0:
+    if chat.choices[0].message.tool_calls == None:
         print(chat.choices[0].message.content)
     else:
         response_tool = chat.choices[0].message.tool_calls[0].function.name
