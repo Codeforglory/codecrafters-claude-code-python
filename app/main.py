@@ -48,8 +48,17 @@ def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 
     # TODO: Uncomment the following line to pass the first stage
-    print(chat.choices[0].message.content)
+    #print(chat.choices[0].message.content)
+    response = chat.choices[0].message.content
 
+    response_tool = chat.choices[0].message.tool_calls[0].function.name
+    response_args = chat.choices[0].message.tool_calls[0]["file_path"]
+
+    with open(response_args, "r") as f:
+        file_contents = f.read()
+        print(file_contents)
+
+    
 
 if __name__ == "__main__":
     main()
