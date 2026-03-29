@@ -66,14 +66,15 @@ def main():
                 for tool_call in chat.choices[0].message.tool_calls:
                     
                     tool_call = tool_call.model_dump()
-                    response_tool = tool_call.function.name
-                    response_tool_id = tool_call.id
-                    response_args = json.loads(tool_call.function.arguments)["file_path"]
+                    response_tool = tool_call["function"]["name"]
+
+                    response_tool_id = tool_call["id"]
+                    response_args = json.loads(tool_call["function"]["arguments"])["file_path"]
                     with open(response_args, "r") as f:
                         file_contents = f.read()
                     #print(file_contents)
                         messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
-            
+                    
 
             chat = client.chat.completions.create(
                 model="anthropic/claude-haiku-4.5",
