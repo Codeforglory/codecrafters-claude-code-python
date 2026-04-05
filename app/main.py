@@ -78,7 +78,11 @@ def bash_operation(tool_call,messages):
         result = subprocess.run(response_args, shell=True, capture_output=True, 
                                 text=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE
                                 )
-        output = result.stdout + result.stderr
+        if result.returncode != 0:
+            output = result.stderr
+        else:
+            
+          output = result.stdout
         messages.append({"role": "tool","tool_call_id": response_tool_id, "content": output})
 
 def file_operation(tool_call,messages):
@@ -115,7 +119,7 @@ def main():
     chat = client.chat.completions.create(
         model="anthropic/claude-haiku-4.5",
         messages=messages,
-        tools = [write_tool,read_tool]
+        tools = [write_tool,read_tool,bash_tool]
     )
 
     if not chat.choices or len(chat.choices) == 0:
