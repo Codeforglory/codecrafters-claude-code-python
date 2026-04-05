@@ -80,8 +80,7 @@ def bash_operation(tool_call,messages):
                                 )
         if result.returncode != 0:
             output = result.stderr
-        else:
-            
+        else: 
           output = result.stdout
         messages.append({"role": "tool","tool_call_id": response_tool_id, "content": output})
 
@@ -167,7 +166,7 @@ def main():
             chat = client.chat.completions.create(
                 model="anthropic/claude-haiku-4.5",
                 messages= messages,
-                tools = [write_tool,read_tool]
+                tools = [write_tool,read_tool,bash_tool]
             )
             response = chat.choices[0].message.content
             finish_reason = chat.choices[0].finish_reason
