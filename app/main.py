@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import json
+import subprocess
 from openai import OpenAI
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -46,6 +47,39 @@ write_tool = {
     }
   }
 }
+
+
+bash_tool = {
+  "type": "function",
+  "function": {
+    "name": "Bash",
+    "description": "Execute a shell command",
+    "parameters": {
+      "type": "object",
+      "required": ["command"],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "The command to execute"
+        }
+      }
+    }
+  }
+}
+
+def bash_operation(tool_call,messages):
+    tool_call = tool_call.model_dump()
+    operation = tool_call["function"]["name"]
+    response_tool_id = tool_call["id"]
+                    
+    response_args = json.loads(tool_call["function"]["arguments"])["command"]
+    
+    if operation == "Bash":
+        result = subprocess.run(response_args, shell=True, capture_output=True, 
+                                text=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                                )
+        output = result.stdout + result.stderr
+        messages.append({"role": "tool","tool_call_id": response_tool_id, "content": output})
 
 def file_operation(tool_call,messages):
     tool_call = tool_call.model_dump()
@@ -108,7 +142,8 @@ def main():
                 for tool_call in chat.choices[0].message.tool_calls:
                     
 
-                    file_operation(tool_call,messages)
+                    #file_operation(tool_call,messages)
+
                     # tool_call = tool_call.model_dump()
                     # response_tool = tool_call["function"]["name"]
 
@@ -120,7 +155,10 @@ def main():
                     #     file_contents = f.write(response_file_content)
                     #print(file_contents)
                     #    messages.append({"role": "tool","tool_call_id": response_tool_id, "content": file_contents})
-
+                    if tool_call.function.name == "Bash":
+                        bash_operation(tool_call,messages)
+                    else:
+                        file_operation(tool_call,messages)
 
             chat = client.chat.completions.create(
                 model="anthropic/claude-haiku-4.5",
