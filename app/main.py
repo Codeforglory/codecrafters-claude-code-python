@@ -75,7 +75,7 @@ def bash_operation(tool_call,messages):
     response_args = json.loads(tool_call["function"]["arguments"])["command"]
     
     if operation == "Bash":
-        result = subprocess.run(response_args, shell=True, capture_output=True, 
+        result = subprocess.run(response_args, shell=True,
                                 text=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE
                                 )
         if result.returncode != 0:
